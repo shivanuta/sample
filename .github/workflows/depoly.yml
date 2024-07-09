@@ -1,0 +1,26 @@
+name: Deploy to Tomcat
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Copy WAR file to server
+      run: scp -o StrictHostKeyChecking=no sample.war user@server_ip:/opt/tomcat/webapps/
+
+    - name: Restart Tomcat
+      run: ssh user@server_ip 'sudo systemctl restart tomcat'
+
